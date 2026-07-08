@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 from pypdf import PdfReader
 
 
@@ -22,9 +23,34 @@ def get_access_token():
     }
 
     response = requests.post(url, headers=headers, data=data)
+
+    print("Status Code:", response.status_code)
+    print("Response:", response.text)
+
+    if response.status_code != 200:
+        print("Status:", response.status_code)
+        print(response.text)
+
     response.raise_for_status()
 
     return response.json()["access_token"]
+
+# def get_access_token():
+#     url = "https://iam.cloud.ibm.com/identity/token"
+
+#     headers = {
+#         "Content-Type": "application/x-www-form-urlencoded"
+#     }
+
+#     data = {
+#         "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
+#         "apikey": IAM_API_KEY
+#     }
+
+#     response = requests.post(url, headers=headers, data=data)
+#     response.raise_for_status()
+
+#     return response.json()["access_token"]
 
 
 
@@ -40,8 +66,35 @@ def extract_resume_text(pdf_path):
             text += page_text + "\n"
 
     return text
+def extract_email(text):
+    match = re.search(
+        r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}",
+        text
+    )
+
+    if match:
+        return match.group()
+
+    return ""
+def extract_phone(text):
+
+    match = re.search(
+        r"(\+?\d[\d\s\-]{8,15}\d)",
+        text
+    )
+
+    if match:
+        return match.group().strip()
+
+    return ""
 def parse_resume(pdf_path):
     resume_text = extract_resume_text(pdf_path)
+    print("========== EXTRACTED TEXT ==========")
+    print(resume_text)
+    print("====================================")
+    email = extract_email(resume_text)
+    phone = extract_phone(resume_text) 
+   
 
     access_token = get_access_token()
 
@@ -202,6 +255,10 @@ def parse_resume(pdf_path):
     content = content.replace("```", "")
     content = content.strip()
     try:
-        return json.loads(content)
+        parsed = json.loads(content)
+        parsed["personal_information"]["email"] = email
+        parsed["personal_information"]["phone"] = phone
+
+        return parsed
     except json.JSONDecodeError:
         raise Exception("IBM Watsonx returned invalid JSON.")
