@@ -1,135 +1,57 @@
 import { Briefcase, Calendar, MapPin } from "lucide-react";
+import SectionCard from "./SectionCard";
 
 function Experience({ data }) {
+  const experiences = data.professional_experience || [];
+  if (experiences.length === 0) return null;
 
-    const experiences = data.professional_experience;
+  return (
+    <SectionCard icon={Briefcase} title="Professional Experience">
+      <div className="relative border-l-2 border-[var(--color-border)] ml-3">
+        {experiences.map((exp, index) => (
+          <div key={index} className="relative pl-8 pb-10 last:pb-0">
+            <div className="absolute w-3 h-3 rounded-full bg-[var(--color-primary)] -left-[7px] top-1.5 ring-4 ring-white" />
 
-    if (!experiences || experiences.length === 0)
-        return null;
+            <div className="rounded-xl border border-[var(--color-border)] p-5 hover:border-[var(--color-primary)]/40 transition-colors">
+              <div className="flex items-start justify-between flex-wrap gap-2">
+                <div>
+                  <h3 className="text-[15.5px] font-semibold text-[var(--color-ink)]">{exp.designation}</h3>
+                  <p className="text-[13.5px] font-medium text-[var(--color-primary)] mt-0.5">{exp.company}</p>
+                </div>
+                {exp.currently_working && (
+                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success)]">
+                    Current
+                  </span>
+                )}
+              </div>
 
-    return (
+              <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3 text-[12.5px] text-[var(--color-ink-muted)]">
+                <span className="flex items-center gap-1.5">
+                  <Calendar size={13} className="text-[var(--color-ink-faint)]" />
+                  {exp.start_date} \u2013 {exp.end_date}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <MapPin size={13} className="text-[var(--color-ink-faint)]" />
+                  {exp.location || "Not mentioned"}
+                </span>
+              </div>
 
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-
-            <div className="flex items-center gap-3 mb-8">
-
-                <Briefcase
-                    className="text-blue-600"
-                    size={32}
-                />
-
-                <h2 className="text-3xl font-bold">
-
-                    Professional Experience
-
-                </h2>
-
+              {exp.responsibilities?.length > 0 && (
+                <ul className="mt-4 space-y-2">
+                  {exp.responsibilities.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[var(--color-ink-muted)]">
+                      <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-
-            <div className="relative border-l-4 border-blue-500 ml-4">
-
-                {experiences.map((exp, index) => (
-
-                    <div
-                        key={index}
-                        className="relative mb-12 pl-10"
-                    >
-
-                        {/* Timeline Circle */}
-
-                        <div
-                            className="absolute w-5 h-5 bg-blue-600 rounded-full -left-[12px] top-2 border-4 border-white"
-                        ></div>
-
-                        {/* Job Card */}
-
-                        <div className="border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 p-6">
-
-                            <h3 className="text-2xl font-bold">
-
-                                {exp.designation}
-
-                            </h3>
-
-                            <p className="text-lg text-blue-600 font-semibold mt-1">
-
-                                {exp.company}
-
-                            </p>
-
-                            <div className="flex flex-wrap gap-6 mt-4 text-gray-600">
-
-                                <div className="flex items-center gap-2">
-
-                                    <Calendar size={18}/>
-
-                                    <span>
-
-                                        {exp.start_date} - {exp.end_date}
-
-                                    </span>
-
-                                </div>
-
-                                <div className="flex items-center gap-2">
-
-                                    <MapPin size={18}/>
-
-                                    <span>
-
-                                        {exp.location || "Not Mentioned"}
-
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                            <div className="mt-6">
-
-                                <h4 className="font-semibold text-lg mb-3">
-
-                                    Responsibilities
-
-                                </h4>
-
-                                <ul className="space-y-3">
-
-                                    {exp.responsibilities.map((item, i) => (
-
-                                        <li
-                                            key={i}
-                                            className="flex items-start gap-3"
-                                        >
-
-                                            <span className="mt-2 w-2 h-2 rounded-full bg-blue-600"></span>
-
-                                            <span className="leading-7">
-
-                                                {item}
-
-                                            </span>
-
-                                        </li>
-
-                                    ))}
-
-                                </ul>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                ))}
-
-            </div>
-
-        </div>
-
-    );
-
+          </div>
+        ))}
+      </div>
+    </SectionCard>
+  );
 }
 
 export default Experience;

@@ -1,41 +1,24 @@
+import { Trophy } from "lucide-react";
+import SectionCard from "./SectionCard";
+
 function Achievements({ data }) {
+  const achievements = data.achievements || [];
+  if (achievements.length === 0) return null;
 
-    const achievements = data.achievements;
-
-    if (!achievements || achievements.length === 0)
-        return null;
-
-    return (
-
-        <div className="bg-white rounded-xl shadow p-6">
-
-            <h2 className="text-2xl font-bold text-blue-600 mb-6">
-
-                ⭐ Achievements
-
-            </h2>
-
-            <div className="space-y-4">
-
-                {achievements.map((achievement, index) => (
-
-                    <div
-                        key={index}
-                        className="border rounded-lg p-4 bg-yellow-50"
-                    >
-
-                        {achievement}
-
-                    </div>
-
-                ))}
-
-            </div>
-
-        </div>
-
-    );
-
+  return (
+    <SectionCard icon={Trophy} title="Achievements">
+      <ul className="space-y-3">
+        {achievements.map((item, i) => (
+          <li key={i} className="flex items-start gap-3 text-[13.5px] leading-relaxed text-[var(--color-ink-muted)]">
+            <span className="w-7 h-7 rounded-lg bg-[var(--color-warning-bg)] text-[var(--color-warning)] flex items-center justify-center shrink-0">
+              <Trophy size={13} />
+            </span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </SectionCard>
+  );
 }
 
 export default Achievements;
