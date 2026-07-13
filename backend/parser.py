@@ -4,9 +4,14 @@ import re
 from pypdf import PdfReader
 
 
-IAM_API_KEY = "SX36iF12vCAeuug1_u8CXuHXi1GlEb_1vEspPjKC_7OY"
+# IAM_API_KEY = "SX36iF12vCAeuug1_u8CXuHXi1GlEb_1vEspPjKC_7OY"
 
-PROJECT_ID = "0d6b7eec-9a0f-45e5-b490-c41af4bf5ea1"
+# PROJECT_ID = "0d6b7eec-9a0f-45e5-b490-c41af4bf5ea1"
+
+# MODEL_ID = "meta-llama/llama-3-3-70b-instruct"
+IAM_API_KEY = "bJgB6dLqbFuhvSyvTm2ih_re2XARbL735OoU8VR3xhjq"
+
+PROJECT_ID = "4f6cff39-84dc-4893-bd77-d5dcaf664c5c"
 
 MODEL_ID = "meta-llama/llama-3-3-70b-instruct"
 
@@ -99,7 +104,8 @@ def parse_resume(pdf_path):
     access_token = get_access_token()
 
 
-    url = "https://us-south.ml.cloud.ibm.com/ml/v1/text/chat?version=2023-05-29"
+    # url = "https://us-south.ml.cloud.ibm.com/ml/v1/text/chat?version=2023-05-29"
+    url = "https://us-south.ml.cloud.ibm.com/ml/v1/text/generation?version=2023-05-2"
 
     headers = {
         "Accept": "application/json",
@@ -243,7 +249,9 @@ def parse_resume(pdf_path):
         headers=headers,
         json=body
     )
-
+    print("Chat API Status:", response.status_code)
+    print("Chat API Response:")
+    print(response.text)
     response.raise_for_status()
 
     result = response.json()

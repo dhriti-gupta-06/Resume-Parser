@@ -29,16 +29,7 @@ function ResumeTable({ resumes, loading, search = "" }) {
   const [sort, setSort] = useState("Newest");
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-
-    let rows = resumes.filter((r) => {
-      if (!q) return true;
-      return (
-        r.name?.toLowerCase().includes(q) ||
-        r.email?.toLowerCase().includes(q) ||
-        r.skillsList?.some((s) => s.toLowerCase().includes(q))
-      );
-    });
+    let rows = [...resumes];
 
     if (filter === "Freshers") {
       rows = rows.filter((r) => (r.experienceCount ?? 0) === 0);

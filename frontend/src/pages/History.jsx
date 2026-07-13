@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { Search } from "lucide-react";
 import axios from "axios";
 
 import AppShell from "../components/AppShell";
@@ -12,6 +13,7 @@ function History() {
   const [enriched, setEnriched] = useState([]);
   const [detailsLoading, setDetailsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [loadingSearch, setLoadingSearch] = useState(false);
 
   const fetchResumes = useCallback(async () => {
     try {
@@ -73,6 +75,37 @@ function History() {
     const list = await fetchResumes();
     await enrichResumes(list);
   }, [fetchResumes, enrichResumes]);
+  const searchCandidates = useCallback(async (query) => {
+    if (!query.trim()) {
+      refreshAll();
+      return;
+    }
+
+    try {
+      setLoadingSearch(true);
+
+      const response = await axios.post(`${API_BASE}/search`, {
+        query: query,
+      });
+
+      const rows = response.data.results.map((r) => ({
+        ...r,
+        experienceCount: r.experience,
+        skillsList: r.skills
+          ? r.skills.split(",").map((s) => s.trim())
+          : [],
+        skillsCount: r.skills
+          ? r.skills.split(",").length
+          : 0,
+      }));
+
+      setEnriched(rows);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingSearch(false);
+    }
+  }, [refreshAll]);
 
   useEffect(() => {
     refreshAll();
@@ -83,25 +116,44 @@ function History() {
       <Topbar
         title="Resume History"
         subtitle="Browse and search every uploaded resume."
-        search={search}
-        onSearchChange={setSearch}
+       
       />
 
       <main className="px-6 lg:px-10 py-8 max-w-[1440px] mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
-            Resume History
-          </h2>
+        <div className="mb-6">
+          <div className="relative max-w-2xl mb-5">
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-faint)]"
+            />
 
-          <p className="text-[12.5px] text-[var(--color-ink-muted)]">
-            {resumesList.length} total resumes
-          </p>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                searchCandidates(e.target.value);
+              }}
+              placeholder="Search candidates using natural language (e.g. Python developer with AWS, 3 years experience)"
+              className="w-full pl-11 pr-4 py-3 rounded-xl border border-[var(--color-border)] bg-white text-[14px] focus:outline-none focus:border-[var(--color-primary)]"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
+              Resume History
+            </h2>
+
+            <p className="text-[12.5px] text-[var(--color-ink-muted)]">
+              {resumesList.length} total resumes
+            </p>
+          </div>
         </div>
 
         <ResumeTable
           resumes={enriched}
-          loading={detailsLoading}
-          search={search}
+          loading={detailsLoading || loadingSearch}
+          
         />
       </main>
     </AppShell>
