@@ -233,18 +233,38 @@ async def search_candidates(data: dict):
 
     query = data.get("query", "")
 
-    sql = generate_sql(query)
+    try:
+        sql = generate_sql(query)
 
-    conn = get_connection()
-    cursor = conn.cursor()
+        print("\nSQL TO EXECUTE")
+        print(sql)
+        print()
 
-    cursor.execute(sql)
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    rows = cursor.fetchall()
+        cursor.execute(sql)
+        rows = cursor.fetchall()
 
-    conn.close()
+        conn.close()
 
-    return {
-        "generated_sql": sql,
-        "results": [dict(row) for row in rows]
-    }
+        if len(rows) == 0:
+            return {
+                "success": True,
+                "message": "No matching resumes found.",
+                "generated_sql": sql,
+                "results": []
+            }
+
+        return {
+            "success": True,
+            "generated_sql": sql,
+            "results": [dict(row) for row in rows]
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "message": str(e),
+            "results": []
+        }

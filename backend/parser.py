@@ -3,12 +3,14 @@ import json
 import re
 from pypdf import PdfReader
 
-
+# api key and project id of IBM Watsonx
 # IAM_API_KEY = "SX36iF12vCAeuug1_u8CXuHXi1GlEb_1vEspPjKC_7OY"
 
 # PROJECT_ID = "0d6b7eec-9a0f-45e5-b490-c41af4bf5ea1"
 
 # MODEL_ID = "meta-llama/llama-3-3-70b-instruct"
+
+# new api key and project id
 IAM_API_KEY = "bJgB6dLqbFuhvSyvTm2ih_re2XARbL735OoU8VR3xhjq"
 
 PROJECT_ID = "4f6cff39-84dc-4893-bd77-d5dcaf664c5c"
@@ -103,9 +105,10 @@ def parse_resume(pdf_path):
 
     access_token = get_access_token()
 
-
+    # url by ibm watsonx
     # url = "https://us-south.ml.cloud.ibm.com/ml/v1/text/chat?version=2023-05-29"
-    url = "https://us-south.ml.cloud.ibm.com/ml/v1/text/generation?version=2023-05-2"
+    # new url
+    url = "https://us-south.ml.cloud.ibm.com/ml/v1/text/generation?version=2023-05-29"
 
     headers = {
         "Accept": "application/json",
@@ -226,20 +229,17 @@ def parse_resume(pdf_path):
 
 
     body = {
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are an expert resume parser."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "project_id": PROJECT_ID,
         "model_id": MODEL_ID,
-        "temperature": 0,
-        "max_tokens": 4000
+
+        "project_id": PROJECT_ID,
+
+        "input": prompt,
+
+        "parameters": {
+            "decoding_method": "greedy",
+            "max_new_tokens": 4000,
+            "temperature": 0
+        }
     }
 
 
@@ -249,15 +249,19 @@ def parse_resume(pdf_path):
         headers=headers,
         json=body
     )
-    print("Chat API Status:", response.status_code)
-    print("Chat API Response:")
+    print("=" * 60)
+    print("IBM Generation API Status :", response.status_code)
+    print("=" * 60)
     print(response.text)
+    print("=" * 60)
+
     response.raise_for_status()
 
     result = response.json()
 
+    print(json.dumps(result, indent=2))
 
-    content = result["choices"][0]["message"]["content"]
+    content = result["results"][0]["generated_text"]
 
     content = content.replace("```json", "")
     content = content.replace("```", "")
